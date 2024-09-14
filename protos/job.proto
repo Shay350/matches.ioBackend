@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package job;
+
+import "google/protobuf/timestamp.proto";
+import "enums.proto";
+
+message Job {
+    string title = 1;
+    string city = 2;
+    string description = 3;
+    string company_name = 4;
+    float salary = 5;
+    JobIndustry industry = 6;
+    Experience experience = 7;
+    google.protobuf.Timestamp posting_date = 8;
+    string external_url = 9;
+    repeated string skills = 10;
+    string id = 11;
+}

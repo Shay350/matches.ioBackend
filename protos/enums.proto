@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package job;
+
+enum JobIndustry {
+    UNKNOWN = 0;
+    SOFTWARE = 1;
+    HARDWARE = 2;
+    EMBEDDED = 3;
+    MACHINE_LEARNING = 4;
+    PRODUCT_DESIGN = 5;
+    PRODUCT_MANAGEMENT = 6;
+    LAW = 7;
+    MEDICINE = 8;
+    BIOLOGY = 9;
+    CHEMISTRY = 10;
+    FINANCE = 11;
+    ACCOUNTING = 12;
+    MARKETING = 13;
+    ECONOMICS = 14;
+    BUSINESS = 15;
+    HUMAN_RESOURCES = 16;
+    ACTUARY = 17;
+    JOURNALISM = 18;
+    PHOTOGRAPHY = 19;
+    CONSULTING = 20;
+    MANUFACTURING = 21;
+    RESEARCH = 22;
+}
+
+enum Experience {
+    INTERNSHIP = 0;
+    NEW_GRAD = 1;
+    JUNIOR = 2;
+    SENIOR = 3;
+    DIRECTOR = 4;
+    C_SUITE = 5;
+}
