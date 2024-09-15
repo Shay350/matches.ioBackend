@@ -18,11 +18,11 @@ class JobBase(BaseModel):
     company_name: str
     salary: float
     industry: int
-    experience: int
+    is_internship: bool
     posting_date: str  # Expecting ISO 8601 format for simplicity
     external_url: str
     skills: list[str]
-    id: str
+    id: int
 
 @app.post("/jobs/")
 async def create_job(job: JobBase):
