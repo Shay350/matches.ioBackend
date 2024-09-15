@@ -12,7 +12,7 @@ message Job {
     string company_name = 4;
     float salary = 5;
     JobIndustry industry = 6;
-    Experience experience = 7;
+    bool is_internship = 7;
     google.protobuf.Timestamp posting_date = 8;
     string external_url = 9;
     repeated string skills = 10;

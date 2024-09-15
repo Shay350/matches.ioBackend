@@ -27,12 +27,3 @@ enum JobIndustry {
     MANUFACTURING = 21;
     RESEARCH = 22;
 }
-
-enum Experience {
-    INTERNSHIP = 0;
-    NEW_GRAD = 1;
-    JUNIOR = 2;
-    SENIOR = 3;
-    DIRECTOR = 4;
-    C_SUITE = 5;
-}

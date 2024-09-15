@@ -1,11 +1,20 @@
 import mysql.connector
 
 mydb = mysql.connector.connect(
-    user='admin',        # The username you set up
+    host="localhost",
+    user='root',        # The username you set up
     password='password',    # The password for your user
-    database='database-1' # The database you want to connect to
 )
 
 mycursor = mydb.cursor()
 
-mycursor.execute("CREATE DATABASE mydatabase")
+#mycursor.execute("CREATE DATABASE database1")
+#mycursor.execute()
+mycursor.execute("SELECT * FROM database1.JOB_POSTINGS;")
+
+# Fetch all rows from the executed query
+rows = mycursor.fetchall()
+
+# Print the result
+for row in rows:
+    print(row)
