@@ -1,12 +1,15 @@
 # embedding_service.py
-
 import json
 import numpy as np
+from dotenv import load_dotenv
+import os
+
 from sklearn.metrics.pairwise import cosine_similarity
 import cohere
 from config import COHERE_API_KEY
 from database import SessionLocal
 from models import JobPosting
+print(f"COHERE_API_KEY: {COHERE_API_KEY}")
 
 # Initialize Cohere client
 co = cohere.Client(COHERE_API_KEY)
