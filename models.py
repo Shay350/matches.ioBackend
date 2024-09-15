@@ -20,7 +20,7 @@ class JobPosting(Base):
     posting_date = Column(DateTime)
     external_link = Column(String(255))
     skills = Column(String(255))
-    embedding = Column(Text)  # Store embeddings as JSON strings
+    embeddings = Column(String(12000))  # Store embeddings as JSON strings
 
 # Database setup
 DATABASE_URL = f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}/{DB_CONFIG['database']}"

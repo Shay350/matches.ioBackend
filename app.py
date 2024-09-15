@@ -24,44 +24,31 @@ def allowed_file(filename):
 @app.route('/upload-resume', methods=['POST'])
 def upload_resume():
     if 'resume' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+        return jsonify({'error': 'No resume file provided'}), 400
+    
+    resume_file = request.files['resume']
+    file_type = resume_file.filename.split('.')[-1].lower()
+    file_path = os.path.join('uploads', resume_file.filename)
+    resume_file.save(file_path)
+    
+    try:
+        resume_text = extract_text(file_path, file_type)
+        job_matches = process_resume_and_get_matches(resume_text)
+        
+        # Categorize jobs into tiers
+        tier1 = [job for job in job_matches if job['similarity'] >= 0.8]
+        tier2 = [job for job in job_matches if 0.5 <= job['similarity'] < 0.8]
+        tier3 = [job for job in job_matches if job['similarity'] < 0.5]
+        
+        response_data = {
+            'tier1': tier1,
+            'tier2': tier2,
+            'tier3': tier3
+        }
 
-    file = request.files['resume']
+        return jsonify(response_data)
 
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
-
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file_type = filename.rsplit('.', 1)[1].lower()
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
-
-        try:
-            # Extract text from resume
-            resume_text = extract_text(file_path, file_type)
-
-            # Process resume and get job matches
-            job_matches = process_resume_and_get_matches(resume_text)
-
-            # Return top N matches
-            top_n = 10
-            top_matches = job_matches[:top_n]
-
-            # Remove embeddings from response to reduce payload size
-            for job in top_matches:
-                job.pop('embedding', None)
-
-            return jsonify({'matches': top_matches}), 200
-
-        except Exception as e:
-            print('Error:', e)
-            return jsonify({'error': 'Failed to process resume'}), 500
-        finally:
-            # Clean up the uploaded file
-            os.remove(file_path)
-    else:
-        return jsonify({'error': 'Invalid file type'}), 400
-
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 if __name__ == '__main__':
     app.run(debug=True)

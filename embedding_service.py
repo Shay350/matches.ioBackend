@@ -27,20 +27,25 @@ def get_job_postings_with_embeddings(session):
     job_postings = []
 
     for job in jobs:
-        if job.embedding:
-            embedding = json.loads(job.embedding)
+        if job.embeddings:
+            embeddings_string = json.loads(job.embeddings)
+            embeddings_string = str(embeddings_string)[1:-1]
+            embeddings = list(map(float, embeddings_string.split(',')))
         else:
             # Generate embedding for the job description
-            embedding = generate_embedding(job.description)
+            embeddings = generate_embedding(job.description)
             # Save the embedding back to the database
-            job.embedding = json.dumps(embedding)
+            job.embeddings = json.dumps(embeddings)
             session.commit()
+
+        skills_list = list(map(str, job.skills.split(',')))
 
         job_postings.append({
             'id': job.id,
+            'skills': skills_list,
             'title': job.title,
             'description': job.description,
-            'embedding': embedding
+            'embeddings': embeddings
         })
 
     return job_postings
@@ -55,7 +60,7 @@ def process_resume_and_get_matches(resume_text):
     job_postings = get_job_postings_with_embeddings(session)
 
     # Prepare job embeddings
-    job_embeddings = np.array([job['embedding'] for job in job_postings])
+    job_embeddings = np.array([job['embeddings'] for job in job_postings])
 
     # Compute cosine similarities
     similarities = cosine_similarity(resume_embedding_np, job_embeddings)[0]

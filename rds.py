@@ -1,8 +1,16 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import mysql.connector
 from mysql.connector import Error
+from embedding_service import process_resume_and_get_matches, generate_embedding
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+
+@app.after_request
+def add_header(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 #MySQL configuration
 db_config = {
@@ -49,11 +57,15 @@ def add_job():
         external_link = data.get('external_link')
         skills = data.get('skills')
 
+        embed_string = title + " " + description
+        embeddings = generate_embedding(embed_string)
+        embeddings = str(embeddings)
+
         query = """
-        INSERT INTO JOB_POSTINGS (title, location, description, company, salary, industry, internship, posting_date, external_link, skills)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO JOB_POSTINGS (title, location, description, company, salary, industry, internship, posting_date, external_link, skills, embeddings)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        data_tuple = (title, location, description, company, salary, industry, internship, posting_date, external_link, skills)
+        data_tuple = (title, location, description, company, salary, industry, internship, posting_date, external_link, skills, embeddings)
 
         cursor.execute(query, data_tuple)
         connection.commit()
@@ -105,6 +117,42 @@ def search_jobs():
 
     except Error as e:
         return jsonify({"Error searching for jobs": str(e)}), 500
+
+#Sample cURL request
+'''
+curl -X POST "http://127.0.0.1:5000/upload" \
+-H "Content-Type: application/json" \
+-d '{"resume": "software", "info": "docker"}'
+
+'''
+@app.route('/upload', methods=['POST', 'OPTIONS'])
+def upload_to_cohere():
+    if request.method == 'OPTIONS':
+        # CORS preflight request: respond with necessary headers
+        response = jsonify({'message': 'CORS preflight successful'})
+        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
+        response.headers.add("Access-Control-Allow-Headers", "Content-Type")
+        response.headers.add("Access-Control-Allow-Methods", "POST, OPTIONS")
+        response.headers.add("Access-Control-Allow-Credentials", "true")
+        return response
+
+    # Actual POST request handling
+    data = request.json
+    skills = data.get('resume')
+    resume = data.get('info')
+
+    new_arr = skills + " INFO: " + resume
+    #print(new_arr)
+    job_list = process_resume_and_get_matches(new_arr)
+    payload = []
+    for job in job_list:
+        del job["embeddings"]
+        if job["similarity"] > 0.86:
+            payload.append(job)
+    print(payload)
+    response = jsonify(payload)
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response, 200
 
 if __name__ == '__main__':
     app.run(debug=True)
