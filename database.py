@@ -1,5 +1,6 @@
 # database.py
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 import mysql.connector
 from mysql.connector import Error
 import os
@@ -16,6 +17,18 @@ db_config = {
     'password': os.getenv('DB_PASSWORD', ''),
     'database': os.getenv('DB_NAME', 'database1')
 }
+# Get the database credentials from environment variables
+DB_HOST = os.getenv("DB_HOST")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+
+DATABASE_URL = f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+
+engine = create_engine(DATABASE_URL)
+
+SessionLocal = sessionmaker(bind=engine)
+
 
 @contextmanager
 def get_db_connection():
